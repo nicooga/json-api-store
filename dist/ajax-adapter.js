@@ -14,6 +14,10 @@ var _ajax = require("./ajax");
 
 var _ajax2 = _interopRequireDefault(_ajax);
 
+var _jqueryParam = require("jquery-param");
+
+var _jqueryParam2 = _interopRequireDefault(_jqueryParam);
+
 var AjaxAdapter = (function () {
   function AjaxAdapter(options) {
     _classCallCheck(this, AjaxAdapter);
@@ -144,16 +148,7 @@ var AjaxAdapter = (function () {
 
       if (options) {
 
-        if (options.fields) {
-          Object.keys(options.fields).forEach(function (field) {
-            options["fields[" + field + "]"] = options.fields[field];
-          });
-          delete options.fields;
-        }
-
-        params = Object.keys(options).map(function (key) {
-          return key + "=" + encodeURIComponent(options[key]);
-        }).sort();
+        params = (0, _jqueryParam2["default"])(options);
 
         if (params.length) {
           url = url + "?" + params.join("&");
