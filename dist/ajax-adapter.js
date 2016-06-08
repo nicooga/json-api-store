@@ -143,16 +143,10 @@ var AjaxAdapter = (function () {
     key: "_getUrl",
     value: function _getUrl(type, id, options) {
 
-      var params = [];
       var url = id ? this._base + "/" + type + "/" + id : this._base + "/" + type;
 
       if (options) {
-
-        params = (0, _jqueryParam2["default"])(options);
-
-        if (params.length) {
-          url = url + "?" + params.join("&");
-        }
+        url = url + "?" + (0, _jqueryParam2["default"])(options);
       }
 
       return url;
