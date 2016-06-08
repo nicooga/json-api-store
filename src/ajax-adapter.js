@@ -116,17 +116,10 @@ export default class AjaxAdapter {
 
   _getUrl(type, id, options) {
 
-    let params = [];
     let url = id ? `${this._base}/${type}/${id}` : `${this._base}/${type}`;
 
     if (options) {
-
-      params = param(options);
-
-      if (params.length) {
-        url = `${url}?${params.join("&")}`;
-      }
-
+      url = `${url}?${param(options)}`;
     }
 
     return url;
