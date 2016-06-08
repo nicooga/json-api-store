@@ -1,4 +1,5 @@
 import ajax from "./ajax";
+import param from "jquery-param";
 
 export default class AjaxAdapter {
 
@@ -120,16 +121,7 @@ export default class AjaxAdapter {
 
     if (options) {
 
-      if (options.fields) {
-        Object.keys(options.fields).forEach(field => {
-          options[`fields[${field}]`] = options.fields[field];
-        });
-        delete options.fields;
-      }
-
-      params = Object.keys(options).map(key => {
-        return key + "=" + encodeURIComponent(options[key]);
-      }).sort();
+      params = param(options);
 
       if (params.length) {
         url = `${url}?${params.join("&")}`;
