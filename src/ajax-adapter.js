@@ -1,12 +1,13 @@
 import ajax from "./ajax";
 import param from "jquery-param";
+import Rx from 'rx';
 
 export default class AjaxAdapter {
 
   constructor(options) {
-    if (Rx.Observable.isObservable(options))
-      options.subscribe(setOptions.bind(this))
-    else setOptions(options);
+    if (options && Rx.Observable.isObservable(options))
+      options.subscribe(this.setOptions.bind(this))
+    else this.setOptions(options);
   };
 
   setOptions(options){
@@ -25,9 +26,9 @@ export default class AjaxAdapter {
         data: store.convert(type, partial)
       }),
       crossDomain: true,
-      headers: {
+      headers: Object.assign({
         "Content-Type": "application/vnd.api+json"
-      },
+      }, this._headers),
       method: "POST",
       responseType: "auto",
       url: this._getUrl(type, null, options)
@@ -49,9 +50,9 @@ export default class AjaxAdapter {
 
     let source = ajax({
       crossDomain: true,
-      headers: {
+      headers: Object.assign({
         "Content-Type": "application/vnd.api+json"
-      },
+      }, this._headers),
       method: "DELETE",
       responseType: "auto",
       url: this._getUrl(type, id, options)
@@ -76,9 +77,9 @@ export default class AjaxAdapter {
 
     let source = ajax({
       crossDomain: true,
-      headers: {
+      headers: Object.assign({
         "Content-Type": "application/vnd.api+json"
-      },
+      }, this._headers),
       method: "GET",
       responseType: "auto",
       url: this._getUrl(type, id, options)
@@ -105,9 +106,9 @@ export default class AjaxAdapter {
         data: data
       }),
       crossDomain: true,
-      headers: {
+      headers: Object.assign({
         "Content-Type": "application/vnd.api+json"
-      },
+      }, this._headers),
       method: "PATCH",
       responseType: "auto",
       url: this._getUrl(type, id, options)

@@ -18,11 +18,15 @@ var _jqueryParam = require("jquery-param");
 
 var _jqueryParam2 = _interopRequireDefault(_jqueryParam);
 
+var _rx = require('rx');
+
+var _rx2 = _interopRequireDefault(_rx);
+
 var AjaxAdapter = (function () {
   function AjaxAdapter(options) {
     _classCallCheck(this, AjaxAdapter);
 
-    if (Rx.Observable.isObservable(options)) options.subscribe(setOptions.bind(this));else setOptions(options);
+    if (options && _rx2["default"].Observable.isObservable(options)) options.subscribe(this.setOptions.bind(this));else this.setOptions(options);
   }
 
   _createClass(AjaxAdapter, [{
@@ -44,9 +48,9 @@ var AjaxAdapter = (function () {
           data: store.convert(type, partial)
         }),
         crossDomain: true,
-        headers: {
+        headers: Object.assign({
           "Content-Type": "application/vnd.api+json"
-        },
+        }, this._headers),
         method: "POST",
         responseType: "auto",
         url: this._getUrl(type, null, options)
@@ -70,9 +74,9 @@ var AjaxAdapter = (function () {
 
       var source = (0, _ajax2["default"])({
         crossDomain: true,
-        headers: {
+        headers: Object.assign({
           "Content-Type": "application/vnd.api+json"
-        },
+        }, this._headers),
         method: "DELETE",
         responseType: "auto",
         url: this._getUrl(type, id, options)
@@ -98,9 +102,9 @@ var AjaxAdapter = (function () {
 
       var source = (0, _ajax2["default"])({
         crossDomain: true,
-        headers: {
+        headers: Object.assign({
           "Content-Type": "application/vnd.api+json"
-        },
+        }, this._headers),
         method: "GET",
         responseType: "auto",
         url: this._getUrl(type, id, options)
@@ -129,9 +133,9 @@ var AjaxAdapter = (function () {
           data: data
         }),
         crossDomain: true,
-        headers: {
+        headers: Object.assign({
           "Content-Type": "application/vnd.api+json"
-        },
+        }, this._headers),
         method: "PATCH",
         responseType: "auto",
         url: this._getUrl(type, id, options)
