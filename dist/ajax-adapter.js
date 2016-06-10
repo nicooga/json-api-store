@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -22,6 +24,10 @@ var _rx = require('rx');
 
 var _rx2 = _interopRequireDefault(_rx);
 
+var _jsCookie = require("js-cookie");
+
+var _jsCookie2 = _interopRequireDefault(_jsCookie);
+
 var AjaxAdapter = (function () {
   function AjaxAdapter(options) {
     _classCallCheck(this, AjaxAdapter);
@@ -33,7 +39,7 @@ var AjaxAdapter = (function () {
     key: "setOptions",
     value: function setOptions(options) {
       this._base = options && options.base || "";
-      this._headers = options && options.headers || "";
+      this._headers = options && options.headers || {};
     }
   }, {
     key: "create",
@@ -48,9 +54,7 @@ var AjaxAdapter = (function () {
           data: store.convert(type, partial)
         }),
         crossDomain: true,
-        headers: Object.assign({
-          "Content-Type": "application/vnd.api+json"
-        }, this._headers),
+        headers: this._mergedHeaders(),
         method: "POST",
         responseType: "auto",
         url: this._getUrl(type, null, options)
@@ -74,9 +78,7 @@ var AjaxAdapter = (function () {
 
       var source = (0, _ajax2["default"])({
         crossDomain: true,
-        headers: Object.assign({
-          "Content-Type": "application/vnd.api+json"
-        }, this._headers),
+        headers: this._mergedHeaders(),
         method: "DELETE",
         responseType: "auto",
         url: this._getUrl(type, id, options)
@@ -102,9 +104,7 @@ var AjaxAdapter = (function () {
 
       var source = (0, _ajax2["default"])({
         crossDomain: true,
-        headers: Object.assign({
-          "Content-Type": "application/vnd.api+json"
-        }, this._headers),
+        headers: this._mergedHeaders(),
         method: "GET",
         responseType: "auto",
         url: this._getUrl(type, id, options)
@@ -133,9 +133,7 @@ var AjaxAdapter = (function () {
           data: data
         }),
         crossDomain: true,
-        headers: Object.assign({
-          "Content-Type": "application/vnd.api+json"
-        }, this._headers),
+        headers: this._mergedHeaders(),
         method: "PATCH",
         responseType: "auto",
         url: this._getUrl(type, id, options)
@@ -160,6 +158,14 @@ var AjaxAdapter = (function () {
       }
 
       return url;
+    }
+  }, {
+    key: "_mergedHeaders",
+    value: function _mergedHeaders() {
+      return _extends({
+        "Content-Type": "application/vnd.api+json",
+        "X-XSRF-TOKEN": _jsCookie2["default"].get("XSRF-TOKEN")
+      }, this._headers);
     }
   }]);
 

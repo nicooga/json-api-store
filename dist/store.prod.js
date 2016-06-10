@@ -95,6 +95,159 @@
 
 
 },{}],3:[function(require,module,exports){
+/*!
+ * JavaScript Cookie v2.1.2
+ * https://github.com/js-cookie/js-cookie
+ *
+ * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+ * Released under the MIT license
+ */
+;(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(factory);
+	} else if (typeof exports === 'object') {
+		module.exports = factory();
+	} else {
+		var OldCookies = window.Cookies;
+		var api = window.Cookies = factory();
+		api.noConflict = function () {
+			window.Cookies = OldCookies;
+			return api;
+		};
+	}
+}(function () {
+	function extend () {
+		var i = 0;
+		var result = {};
+		for (; i < arguments.length; i++) {
+			var attributes = arguments[ i ];
+			for (var key in attributes) {
+				result[key] = attributes[key];
+			}
+		}
+		return result;
+	}
+
+	function init (converter) {
+		function api (key, value, attributes) {
+			var result;
+			if (typeof document === 'undefined') {
+				return;
+			}
+
+			// Write
+
+			if (arguments.length > 1) {
+				attributes = extend({
+					path: '/'
+				}, api.defaults, attributes);
+
+				if (typeof attributes.expires === 'number') {
+					var expires = new Date();
+					expires.setMilliseconds(expires.getMilliseconds() + attributes.expires * 864e+5);
+					attributes.expires = expires;
+				}
+
+				try {
+					result = JSON.stringify(value);
+					if (/^[\{\[]/.test(result)) {
+						value = result;
+					}
+				} catch (e) {}
+
+				if (!converter.write) {
+					value = encodeURIComponent(String(value))
+						.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
+				} else {
+					value = converter.write(value, key);
+				}
+
+				key = encodeURIComponent(String(key));
+				key = key.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent);
+				key = key.replace(/[\(\)]/g, escape);
+
+				return (document.cookie = [
+					key, '=', value,
+					attributes.expires && '; expires=' + attributes.expires.toUTCString(), // use expires attribute, max-age is not supported by IE
+					attributes.path    && '; path=' + attributes.path,
+					attributes.domain  && '; domain=' + attributes.domain,
+					attributes.secure ? '; secure' : ''
+				].join(''));
+			}
+
+			// Read
+
+			if (!key) {
+				result = {};
+			}
+
+			// To prevent the for loop in the first place assign an empty array
+			// in case there are no cookies at all. Also prevents odd result when
+			// calling "get()"
+			var cookies = document.cookie ? document.cookie.split('; ') : [];
+			var rdecode = /(%[0-9A-Z]{2})+/g;
+			var i = 0;
+
+			for (; i < cookies.length; i++) {
+				var parts = cookies[i].split('=');
+				var cookie = parts.slice(1).join('=');
+
+				if (cookie.charAt(0) === '"') {
+					cookie = cookie.slice(1, -1);
+				}
+
+				try {
+					var name = parts[0].replace(rdecode, decodeURIComponent);
+					cookie = converter.read ?
+						converter.read(cookie, name) : converter(cookie, name) ||
+						cookie.replace(rdecode, decodeURIComponent);
+
+					if (this.json) {
+						try {
+							cookie = JSON.parse(cookie);
+						} catch (e) {}
+					}
+
+					if (key === name) {
+						result = cookie;
+						break;
+					}
+
+					if (!key) {
+						result[name] = cookie;
+					}
+				} catch (e) {}
+			}
+
+			return result;
+		}
+
+		api.set = api;
+		api.get = function (key) {
+			return api(key);
+		};
+		api.getJSON = function () {
+			return api.apply({
+				json: true
+			}, [].slice.call(arguments));
+		};
+		api.defaults = {};
+
+		api.remove = function (key, attributes) {
+			api(key, '', extend(attributes, {
+				expires: -1
+			}));
+		};
+
+		api.withConverter = init;
+
+		return api;
+	}
+
+	return init(function () {});
+}));
+
+},{}],4:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -195,7 +348,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (process,global){
 // Copyright (c) Microsoft, All rights reserved. See License.txt in the project root for license information.
 
@@ -12587,14 +12740,14 @@ var ReactiveTest = Rx.ReactiveTest = {
 }.call(this));
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":3}],5:[function(require,module,exports){
-"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_ajax=require("./ajax"),_ajax2=_interopRequireDefault(_ajax),_jqueryParam=require("jquery-param"),_jqueryParam2=_interopRequireDefault(_jqueryParam),_rx=require("rx"),_rx2=_interopRequireDefault(_rx),AjaxAdapter=function(){function e(t){_classCallCheck(this,e),t&&_rx2["default"].Observable.isObservable(t)?t.subscribe(this.setOptions.bind(this)):this.setOptions(t)}return _createClass(e,[{key:"setOptions",value:function(e){this._base=e&&e.base||"",this._headers=e&&e.headers||""}},{key:"create",value:function(e,t,r,n){if(!e._types[t])throw new Error("Unknown type '"+t+"'");var a=(0,_ajax2["default"])({body:JSON.stringify({data:e.convert(t,r)}),crossDomain:!0,headers:Object.assign({"Content-Type":"application/vnd.api+json"},this._headers),method:"POST",responseType:"auto",url:this._getUrl(t,null,n)})["do"](function(t){return e.push(t.response)}).map(function(t){return e.find(t.response.data.type,t.response.data.id)}).publish();return a.connect(),a}},{key:"destroy",value:function(e,t,r,n){if(!e._types[t])throw new Error("Unknown type '"+t+"'");var a=(0,_ajax2["default"])({crossDomain:!0,headers:Object.assign({"Content-Type":"application/vnd.api+json"},this._headers),method:"DELETE",responseType:"auto",url:this._getUrl(t,r,n)})["do"](function(){return e.remove(t,r)}).publish();return a.connect(),a}},{key:"load",value:function(e,t,r,n){if(r&&"object"==typeof r)return this.load(e,t,null,r);if(!e._types[t])throw new Error("Unknown type '"+t+"'");var a=(0,_ajax2["default"])({crossDomain:!0,headers:Object.assign({"Content-Type":"application/vnd.api+json"},this._headers),method:"GET",responseType:"auto",url:this._getUrl(t,r,n)})["do"](function(t){return e.push(t.response)}).map(function(){return r?e.find(t,r):e.findAll(t)}).publish();return a.connect(),a}},{key:"update",value:function(e,t,r,n,a){if(!e._types[t])throw new Error("Unknown type '"+t+"'");var o=e.convert(t,r,n),s=(0,_ajax2["default"])({body:JSON.stringify({data:o}),crossDomain:!0,headers:Object.assign({"Content-Type":"application/vnd.api+json"},this._headers),method:"PATCH",responseType:"auto",url:this._getUrl(t,r,a)})["do"](function(){return e.add(o)}).map(function(){return e.find(t,r)}).publish();return s.connect(),s}},{key:"_getUrl",value:function(e,t,r){var n=t?this._base+"/"+e+"/"+t:this._base+"/"+e;return r&&(n=n+"?"+(0,_jqueryParam2["default"])(r)),n}}]),e}();exports["default"]=AjaxAdapter,module.exports=exports["default"];
+},{"_process":4}],6:[function(require,module,exports){
+"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,r){if(!(e instanceof r))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(exports,"__esModule",{value:!0});var _extends=Object.assign||function(e){for(var r=1;r<arguments.length;r++){var t=arguments[r];for(var n in t)Object.prototype.hasOwnProperty.call(t,n)&&(e[n]=t[n])}return e},_createClass=function(){function e(e,r){for(var t=0;t<r.length;t++){var n=r[t];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(r,t,n){return t&&e(r.prototype,t),n&&e(r,n),r}}(),_ajax=require("./ajax"),_ajax2=_interopRequireDefault(_ajax),_jqueryParam=require("jquery-param"),_jqueryParam2=_interopRequireDefault(_jqueryParam),_rx=require("rx"),_rx2=_interopRequireDefault(_rx),_jsCookie=require("js-cookie"),_jsCookie2=_interopRequireDefault(_jsCookie),AjaxAdapter=function(){function e(r){_classCallCheck(this,e),r&&_rx2["default"].Observable.isObservable(r)?r.subscribe(this.setOptions.bind(this)):this.setOptions(r)}return _createClass(e,[{key:"setOptions",value:function(e){this._base=e&&e.base||"",this._headers=e&&e.headers||{}}},{key:"create",value:function(e,r,t,n){if(!e._types[r])throw new Error("Unknown type '"+r+"'");var a=(0,_ajax2["default"])({body:JSON.stringify({data:e.convert(r,t)}),crossDomain:!0,headers:this._mergedHeaders(),method:"POST",responseType:"auto",url:this._getUrl(r,null,n)})["do"](function(r){return e.push(r.response)}).map(function(r){return e.find(r.response.data.type,r.response.data.id)}).publish();return a.connect(),a}},{key:"destroy",value:function(e,r,t,n){if(!e._types[r])throw new Error("Unknown type '"+r+"'");var a=(0,_ajax2["default"])({crossDomain:!0,headers:this._mergedHeaders(),method:"DELETE",responseType:"auto",url:this._getUrl(r,t,n)})["do"](function(){return e.remove(r,t)}).publish();return a.connect(),a}},{key:"load",value:function(e,r,t,n){if(t&&"object"==typeof t)return this.load(e,r,null,t);if(!e._types[r])throw new Error("Unknown type '"+r+"'");var a=(0,_ajax2["default"])({crossDomain:!0,headers:this._mergedHeaders(),method:"GET",responseType:"auto",url:this._getUrl(r,t,n)})["do"](function(r){return e.push(r.response)}).map(function(){return t?e.find(r,t):e.findAll(r)}).publish();return a.connect(),a}},{key:"update",value:function(e,r,t,n,a){if(!e._types[r])throw new Error("Unknown type '"+r+"'");var o=e.convert(r,t,n),s=(0,_ajax2["default"])({body:JSON.stringify({data:o}),crossDomain:!0,headers:this._mergedHeaders(),method:"PATCH",responseType:"auto",url:this._getUrl(r,t,a)})["do"](function(){return e.add(o)}).map(function(){return e.find(r,t)}).publish();return s.connect(),s}},{key:"_getUrl",value:function(e,r,t){var n=r?this._base+"/"+e+"/"+r:this._base+"/"+e;return t&&(n=n+"?"+(0,_jqueryParam2["default"])(t)),n}},{key:"_mergedHeaders",value:function(){return _extends({"Content-Type":"application/vnd.api+json","X-XSRF-TOKEN":_jsCookie2["default"].get("XSRF-TOKEN")},this._headers)}}]),e}();exports["default"]=AjaxAdapter,module.exports=exports["default"];
 
-},{"./ajax":6,"jquery-param":2,"rx":4}],6:[function(require,module,exports){
+},{"./ajax":7,"jquery-param":2,"js-cookie":3,"rx":5}],7:[function(require,module,exports){
 "use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function getXMLHttpRequest(){if(root.XMLHttpRequest)return new root.XMLHttpRequest;var e=void 0;try{for(var r=["Msxml2.XMLHTTP","Microsoft.XMLHTTP","Msxml2.XMLHTTP.4.0"],t=0;3>t;t++)try{if(e=r[t],new root.ActiveXObject(e))break}catch(o){}return new root.ActiveXObject(e)}catch(o){throw new Error("XMLHttpRequest is not supported by your browser")}}function getCORSRequest(){var e=new root.XMLHttpRequest;if("withCredentials"in e)return e;if(root.XDomainRequest)return new XDomainRequest;throw new Error("CORS is not supported by your browser")}function normalizeAjaxSuccessEvent(e,r,t){var o="response"in r?r.response:r.responseText;if("auto"===t.responseType)try{o=JSON.parse(o)}catch(e){}else o="json"===t.responseType?JSON.parse(o):o;return{response:o,status:r.status,responseType:r.responseType,xhr:r,originalEvent:e}}function normalizeAjaxErrorEvent(e,r,t){return{type:t,status:r.status,xhr:r,originalEvent:e}}Object.defineProperty(exports,"__esModule",{value:!0});var _rx=require("rx"),_rx2=_interopRequireDefault(_rx),root="undefined"!=typeof window&&window||void 0;exports["default"]=function(e){var r={method:"GET",crossDomain:!1,async:!0,headers:{},responseType:"text",createXHR:function(){return this.crossDomain?getCORSRequest():getXMLHttpRequest()},normalizeError:normalizeAjaxErrorEvent,normalizeSuccess:normalizeAjaxSuccessEvent};if("string"==typeof e)r.url=e;else for(var t in e)hasOwnProperty.call(e,t)&&(r[t]=e[t]);var o=r.normalizeError,s=r.normalizeSuccess;return r.crossDomain||r.headers["X-Requested-With"]||(r.headers["X-Requested-With"]="XMLHttpRequest"),r.hasContent=void 0!==r.body,new _rx2["default"].AnonymousObservable(function(e){var t,n=!1,a=function(t,a){var u=1223===t.status?204:t.status;u>=200&&300>=u||0===u||""===u?(e.onNext(s(a,t,r)),e.onCompleted()):e.onError(o(a,t,"error")),n=!0};try{t=r.createXHR()}catch(u){e.onError(u)}try{r.user?t.open(r.method,r.url,r.async,r.user,r.password):t.open(r.method,r.url,r.async);var i=r.headers;for(var p in i)hasOwnProperty.call(i,p)&&t.setRequestHeader(p,i[p]);t.upload||!("withCredentials"in t)&&root.XDomainRequest?(t.onload=function(e){r.progressObserver&&(r.progressObserver.onNext(e),r.progressObserver.onCompleted()),a(t,e)},r.progressObserver&&(t.onprogress=function(e){r.progressObserver.onNext(e)}),t.onerror=function(s){r.progressObserver&&r.progressObserver.onError(s),e.onError(o(s,t,"error")),n=!0},t.onabort=function(s){r.progressObserver&&r.progressObserver.onError(s),e.onError(o(s,t,"abort")),n=!0}):t.onreadystatechange=function(e){4===t.readyState&&a(t,e)},t.send(r.hasContent&&r.body||null)}catch(c){e.onError(c)}return function(){n||4===t.readyState||t.abort()}})},module.exports=exports["default"];
 
-},{"rx":4}],7:[function(require,module,exports){
+},{"rx":5}],8:[function(require,module,exports){
 "use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{"default":e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}();require("array.prototype.find");var _rx=require("rx"),_rx2=_interopRequireDefault(_rx),_ajaxAdapter=require("./ajax-adapter"),_ajaxAdapter2=_interopRequireDefault(_ajaxAdapter),Store=function(){function e(t){_classCallCheck(this,e),this._adapter=t,this._data={},this._subject=new _rx2["default"].Subject,this._subscriptions={},this._types={},this.observable=this._subject.asObservable()}return _createClass(e,null,[{key:"attr",value:function(t,r){return t&&"object"==typeof t?e.attr(null,t):{type:"attr","default":r&&r["default"],deserialize:function(e,r){return e.attributes&&e.attributes[t||r]},serialize:function(e,r,n){r.attributes[t||n]=e[n]}}}},{key:"hasOne",value:function(t,r){return t&&"object"==typeof t?e.hasOne(null,t):{type:"has-one",inverse:r&&r.inverse,deserialize:function(e,r){if(t=t||r,e.relationships&&e.relationships[t]){if(null===e.relationships[t].data)return null;if(e.relationships[t].data)return this.find(e.relationships[t].data.type,e.relationships[t].data.id)}},serialize:function(e,r,n){null===e[n]?r.relationships[t||n]=null:e[n]&&(r.relationships[t||n]={data:{type:e[n].type,id:e[n].id}})}}}},{key:"hasMany",value:function(t,r){return t&&"object"==typeof t?e.hasMany(null,t):{type:"has-many","default":[],inverse:r&&r.inverse,deserialize:function(e,r){var n=this;if(t=t||r,e.relationships&&e.relationships[t]){if(null===e.relationships[t].data)return[];if(e.relationships[t].data)return e.relationships[t].data.map(function(e){return n.find(e.type,e.id)})}},serialize:function(e,r,n){e[n]&&(r.relationships[t||n]={data:e[n].map(function(e){return{type:e.type,id:e.id}})})}}}}]),_createClass(e,[{key:"add",value:function(e){var t=this;if(!e)throw new TypeError("You must provide data to add");if(!e.type||!e.id)throw new TypeError("The data must have a type and id");!function(){var r=t._data[e.type]&&t._data[e.type][e.id]?"updated":"added",n=t.find(e.type,e.id),i=t._types[e.type];Object.keys(i).forEach(function(r){"_"!==r[0]&&t._addField(e,n,i,r)}),t._subject.onNext({name:r,type:e.type,id:e.id,resource:n})}()}},{key:"convert",value:function(e,t,r){var n=this;if(e&&"object"==typeof e)return this.convert(e.type,e.id,e);if(t&&"object"==typeof t)return this.convert(e,t.id,t);var i=function(){var i={type:e,attributes:{},relationships:{}};t&&(i.id=t);var a=n._types[i.type];return Object.keys(a).forEach(function(e){"_"!==e[0]&&a[e].serialize(r,i,e)}),{v:i}}();return"object"==typeof i?i.v:void 0}},{key:"create",value:function(e,t,r){if(this._adapter)return this._adapter.create(this,e,t,r);throw new Error("Adapter missing. Specify an adapter when creating the store: `var store = new Store(adapter);`")}},{key:"define",value:function(e,t){var r=this;if(e=e.constructor===Array?e:[e],!t)throw new Error("You must provide a definition for the type '"+e[0]+"'.");t._names=e,e.forEach(function(e){if(r._types[e])throw new Error("The type '"+e+"' has already been defined.");r._types[e]=t})}},{key:"destroy",value:function(e,t,r){if(this._adapter)return this._adapter.destroy(this,e,t,r);throw new Error("Adapter missing. Specify an adapter when creating the store: `var store = new Store(adapter);`")}},{key:"find",value:function(e,t){var r=this;if(!e)throw new TypeError("You must provide a type");var n=function(){var n=r._types[e];if(n)return r._data[e]||!function(){var e={};n._names.forEach(function(t){return r._data[t]=e})}(),t?(r._data[e][t]||(r._data[e][t]={_dependents:[],type:e,id:t},Object.keys(n).forEach(function(i){"_"!==i[0]&&(r._data[e][t][i]=n[i]["default"])})),{v:r._data[e][t]}):(console.warn(["Using the `store.find()` method to find an entire collection has been deprecated in favour of `store.findAll()`.","For more information see: https://github.com/haydn/json-api-store/releases/tag/v0.7.0"].join("\n")),{v:r.findAll(e)});throw new TypeError("Unknown type '"+e+"'")}();return"object"==typeof n?n.v:void 0}},{key:"findAll",value:function(e){var t=this;if(e){var r=this._types[e];if(r)return this._data[e]||!function(){var e={};r._names.forEach(function(r){return t._data[r]=e})}(),Object.keys(this._data[e]).map(function(r){return t._data[e][r]});throw new TypeError("Unknown type '"+e+"'")}throw new TypeError("You must provide a type")}},{key:"load",value:function(e,t,r){if(t&&"object"!=typeof t||console.warn(["Using the `store.load()` method to load an entire collection has been deprecated in favour of `store.loadAll()`.","For more information see: https://github.com/haydn/json-api-store/releases/tag/v0.7.0"].join("\n")),this._adapter)return this._adapter.load(this,e,t,r);throw new Error("Adapter missing. Specify an adapter when creating the store: `var store = new Store(adapter);`")}},{key:"loadAll",value:function(e,t){if(this._adapter)return this._adapter.load(this,e,null,t);throw new Error("Adapter missing. Specify an adapter when creating the store: `var store = new Store(adapter);`")}},{key:"off",value:function(e,t,r,n){if(console.warn(["The `store.off()` method has been deprecated in favour of `store.observable`.","For more information see: https://github.com/haydn/json-api-store/releases/tag/v0.6.0"].join("\n")),"added"!==e&&"updated"!==e&&"removed"!==e)throw new Error("Unknown event '"+e+"'");if(!this._types[t])throw new Error("Unknown type '"+t+"'");r&&"[object Function]"==={}.toString.call(r)?this.off.call(this,e,t,null,r,n):this._subscriptions[e]&&this._subscriptions[e][t]&&this._subscriptions[e][t][r||"*"]&&(this._subscriptions[e][t][r||"*"].dispose(),delete this._subscriptions[e][t][r||"*"])}},{key:"on",value:function(e,t,r,n,i){var a=this;if(console.warn(["The `store.on()` method has been deprecated in favour of `store.observable`.","For more information see: https://github.com/haydn/json-api-store/releases/tag/v0.6.0"].join("\n")),"added"!==e&&"updated"!==e&&"removed"!==e)throw new Error("Unknown event '"+e+"'");if(!this._types[t])throw new Error("Unknown type '"+t+"'");if(r&&"[object Function]"==={}.toString.call(r))this.on.call(this,e,t,null,r,n);else if(!this._subscriptions[e]||!this._subscriptions[e][t]||!this._subscriptions[e][t][r||"*"]){var s=this._subject.filter(function(t){return t.name===e});s=s.filter(function(e){return-1!==a._types[t]._names.indexOf(e.type)}),r&&(s=s.filter(function(e){return e.id===r})),s=s.map(function(e){return a.find(e.type,e.id)}),this._subscriptions[e]=this._subscriptions[e]||{},this._subscriptions[e][t]||!function(){var r={};a._types[t]._names.forEach(function(t){a._subscriptions[e][t]=r})}(),this._subscriptions[e][t][r||"*"]=s.subscribe(n.bind(i))}}},{key:"push",value:function(e){var t=this;e.data.constructor===Array?e.data.forEach(function(e){return t.add(e)}):this.add(e.data),e.included&&e.included.forEach(function(e){return t.add(e)})}},{key:"remove",value:function(e,t){var r=this;if(!e)throw new TypeError("You must provide a type to remove");if(!this._types[e])throw new TypeError("Unknown type '"+e+"'");if(t){var n=this._data[e]&&this._data[e][t];n&&(this._remove(n),this._subject.onNext({name:"removed",type:e,id:t,resource:null}))}else Object.keys(this._data[e]).forEach(function(t){return r.remove(e,t)})}},{key:"update",value:function(e,t,r,n){if(this._adapter)return this._adapter.update(this,e,t,r,n);throw new Error("Adapter missing. Specify an adapter when creating the store: `var store = new Store(adapter);`")}},{key:"_addField",value:function(e,t,r,n){var i=this,a=r[n],s=a.deserialize.call(this,e,n);"undefined"!=typeof s&&("has-one"===a.type?(t[n]&&this._removeInverseRelationship(t,n,t[n],a),s&&this._addInverseRelationship(t,n,s,a)):"has-many"===a.type&&(t[n].forEach(function(e){-1!==t[n].indexOf(e)&&i._removeInverseRelationship(t,n,e,a)}),s.forEach(function(e){i._addInverseRelationship(t,n,e,a)})),t[n]=s)}},{key:"_addInverseRelationship",value:function(e,t,r,n){var i=this._types[r.type],a=this._types[e.type];if(i){var s=[n.inverse].concat(a._names).find(function(e){return i[e]}),o=i&&i[s];if(r._dependents.push({type:e.type,id:e.id,fieldName:t}),o){if("has-one"===o.type)e._dependents.push({type:r.type,id:r.id,fieldName:s}),r[s]=e;else if("has-many"===o.type)e._dependents.push({type:r.type,id:r.id,fieldName:s}),-1===r[s].indexOf(e)&&r[s].push(e);else if("attr"===o.type)throw new Error("The the inverse relationship for '"+t+"' is an attribute ('"+s+"')")}else if(n.inverse)throw new Error("The the inverse relationship for '"+t+"' is missing ('"+n.inverse+"')")}}},{key:"_remove",value:function(e){var t=this;e._dependents.forEach(function(r){var n=t._data[r.type][r.id];switch(t._types[r.type][r.fieldName].type){case"has-one":n[r.fieldName]=null;break;case"has-many":var i=n[r.fieldName].indexOf(e);-1!==i&&n[r.fieldName].splice(i,1)}n._dependents=n._dependents.filter(function(t){return!(t.type===e.type&&t.id===e.id)})}),delete this._data[e.type][e.id]}},{key:"_removeInverseRelationship",value:function(e,t,r,n){var i=this._types[r.type],a=n.inverse||e.type,s=i&&i[a];if(r._dependents=r._dependents.filter(function(r){return!(r.type===e.type&&r.id===e.id&&r.fieldName===t)}),s){if("has-one"===s.type)e._dependents=e._dependents.filter(function(e){return!(e.type===r.type&&e.id===r.id&&e.fieldName===a)}),r[a]=null;else if("has-many"===s.type)e._dependents=e._dependents.filter(function(e){return!(e.type===r.type&&e.id===r.id&&e.fieldName===a)}),r[a]=r[a].filter(function(t){return t!==e});else if("attr"===s.type)throw new Error("The the inverse relationship for '"+t+"' is an attribute ('"+a+"')")}else if(n.inverse)throw new Error("The the inverse relationship for '"+t+"' is missing ('"+n.inverse+"')")}}]),e}();exports["default"]=Store,Store.Rx=_rx2["default"],Store.AjaxAdapter=_ajaxAdapter2["default"],module.exports=exports["default"];
 
-},{"./ajax-adapter":5,"array.prototype.find":1,"rx":4}]},{},[7])(7)
+},{"./ajax-adapter":6,"array.prototype.find":1,"rx":5}]},{},[8])(8)
 });
