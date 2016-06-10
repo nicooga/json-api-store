@@ -1,9 +1,9 @@
 import ajax from "./ajax";
 import param from "jquery-param";
 import Rx from 'rx';
+import Cookies from "js-cookie";
 
 export default class AjaxAdapter {
-
   constructor(options) {
     if (options && Rx.Observable.isObservable(options))
       options.subscribe(this.setOptions.bind(this))
@@ -26,9 +26,7 @@ export default class AjaxAdapter {
         data: store.convert(type, partial)
       }),
       crossDomain: true,
-      headers: Object.assign({
-        "Content-Type": "application/vnd.api+json"
-      }, this._headers),
+      headers: this._mergedHeaders(headers),
       method: "POST",
       responseType: "auto",
       url: this._getUrl(type, null, options)
@@ -77,9 +75,7 @@ export default class AjaxAdapter {
 
     let source = ajax({
       crossDomain: true,
-      headers: Object.assign({
-        "Content-Type": "application/vnd.api+json"
-      }, this._headers),
+      headers: this._mergedHeaders(),
       method: "GET",
       responseType: "auto",
       url: this._getUrl(type, id, options)
@@ -106,9 +102,7 @@ export default class AjaxAdapter {
         data: data
       }),
       crossDomain: true,
-      headers: Object.assign({
-        "Content-Type": "application/vnd.api+json"
-      }, this._headers),
+      headers: this._mergedHeaders(),
       method: "PATCH",
       responseType: "auto",
       url: this._getUrl(type, id, options)
@@ -134,4 +128,11 @@ export default class AjaxAdapter {
 
   }
 
+  _mergedHeaders(headers) {
+    return {
+      "Content-Type": "application/vnd.api+json",
+      "X-XSRF-TOKEN": Cookies.get("XSRF-TOKEN"),
+      ...this._headers
+    };
+  }
 }

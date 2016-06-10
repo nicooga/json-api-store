@@ -31,6 +31,7 @@
   "dependencies": {
     "array.prototype.find": "^1.0.0",
     "jquery-param": "^0.2.0",
+    "js-cookie": "^2.1.2",
     "rx": "^4.0.0"
   }
 }
