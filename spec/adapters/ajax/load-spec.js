@@ -1,6 +1,7 @@
 import test from "tape-catch";
 import sinon from "sinon";
 import Store from "../../../src/store";
+import Rx from 'rx';
 
 test("load must fetch a single resource from the server and add it to the store", function (t) {
   var server = sinon.fakeServer.create({ autoRespond: false });
@@ -237,6 +238,22 @@ test("load must throw an error if the type has not been defined", function (t) {
 test("load must use the correct content type header", function (t) {
   var server = sinon.fakeServer.create({ autoRespond: false });
   var adapter = new Store.AjaxAdapter();
+  var store = new Store(adapter);
+  t.plan(1);
+  t.timeoutAfter(1000);
+  store.define("products", {});
+  server.respondWith("GET", "/products/6", function (request) {
+    t.notEqual(request.requestHeaders["Content-Type"].split(";").indexOf("application/vnd.api+json"), -1);
+  });
+  store.load("products", "6");
+  server.respond();
+  server.restore();
+});
+
+test("load must use the correct content type header while observing", function (t) {
+  var server = sinon.fakeServer.create({ autoRespond: false });
+  var subject = Rx.BehaviorSubject({headers: {"Authentication": "123"}});
+  var adapter = new Store.AjaxAdapter(subject);
   var store = new Store(adapter);
   t.plan(1);
   t.timeoutAfter(1000);

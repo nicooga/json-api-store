@@ -22,10 +22,16 @@ var AjaxAdapter = (function () {
   function AjaxAdapter(options) {
     _classCallCheck(this, AjaxAdapter);
 
-    this._base = options && options.base || "";
+    if (Rx.Observable.isObservable(options)) options.subscribe(setOptions.bind(this));else setOptions(options);
   }
 
   _createClass(AjaxAdapter, [{
+    key: "setOptions",
+    value: function setOptions(options) {
+      this._base = options && options.base || "";
+      this._headers = options && options.headers || "";
+    }
+  }, {
     key: "create",
     value: function create(store, type, partial, options) {
 

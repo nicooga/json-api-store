@@ -4,8 +4,15 @@ import param from "jquery-param";
 export default class AjaxAdapter {
 
   constructor(options) {
-    this._base = (options && options.base) || "";
+    if (Rx.Observable.isObservable(options))
+      options.subscribe(setOptions.bind(this))
+    else setOptions(options);
   };
+
+  setOptions(options){
+    this._base = (options && options.base) || "";
+    this._headers = (options && options.headers) || "";
+  }
 
   create(store, type, partial, options) {
 
