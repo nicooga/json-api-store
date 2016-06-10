@@ -12,7 +12,7 @@ export default class AjaxAdapter {
 
   setOptions(options){
     this._base = (options && options.base) || "";
-    this._headers = (options && options.headers) || "";
+    this._headers = (options && options.headers) || {};
   }
 
   create(store, type, partial, options) {
@@ -26,7 +26,7 @@ export default class AjaxAdapter {
         data: store.convert(type, partial)
       }),
       crossDomain: true,
-      headers: this._mergedHeaders(headers),
+      headers: this._mergedHeaders(),
       method: "POST",
       responseType: "auto",
       url: this._getUrl(type, null, options)
@@ -48,9 +48,7 @@ export default class AjaxAdapter {
 
     let source = ajax({
       crossDomain: true,
-      headers: Object.assign({
-        "Content-Type": "application/vnd.api+json"
-      }, this._headers),
+      headers: this._mergedHeaders(),
       method: "DELETE",
       responseType: "auto",
       url: this._getUrl(type, id, options)
@@ -128,7 +126,7 @@ export default class AjaxAdapter {
 
   }
 
-  _mergedHeaders(headers) {
+  _mergedHeaders() {
     return {
       "Content-Type": "application/vnd.api+json",
       "X-XSRF-TOKEN": Cookies.get("XSRF-TOKEN"),
