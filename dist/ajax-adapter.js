@@ -164,7 +164,7 @@ var AjaxAdapter = (function () {
     value: function _mergedHeaders() {
       return _extends({
         "Content-Type": "application/vnd.api+json",
-        "X-XSRF-TOKEN": _jsCookie2["default"].get("XSRF-TOKEN")
+        "X-CSRF-Token": _jsCookie2["default"].get("XSRF-TOKEN")
       }, this._headers);
     }
   }]);
