@@ -129,7 +129,7 @@ export default class AjaxAdapter {
   _mergedHeaders() {
     return {
       "Content-Type": "application/vnd.api+json",
-      "X-XSRF-TOKEN": Cookies.get("XSRF-TOKEN"),
+      "X-CSRF-Token": Cookies.get("XSRF-TOKEN"),
       ...this._headers
     };
   }
