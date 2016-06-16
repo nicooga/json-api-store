@@ -108,10 +108,8 @@ var AjaxAdapter = (function () {
         method: "GET",
         responseType: "auto",
         url: this._getUrl(type, id, options)
-      })["do"](function (e) {
+      }).map(function (e) {
         return store.push(e.response);
-      }).map(function () {
-        return id ? store.find(type, id) : store.findAll(type);
       }).publish();
 
       source.connect();

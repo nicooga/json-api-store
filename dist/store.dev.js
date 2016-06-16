@@ -12872,10 +12872,8 @@ var AjaxAdapter = (function () {
         method: "GET",
         responseType: "auto",
         url: this._getUrl(type, id, options)
-      })["do"](function (e) {
+      }).map(function (e) {
         return store.push(e.response);
-      }).map(function () {
-        return id ? store.find(type, id) : store.findAll(type);
       }).publish();
 
       source.connect();
@@ -13392,7 +13390,7 @@ var Store = (function () {
 
       if (object) {
         if (object.type && object.id) {
-          (function () {
+          var _ret = (function () {
             var name = _this2._data[object.type] && _this2._data[object.type][object.id] ? "updated" : "added";
             var resource = _this2.find(object.type, object.id);
             var definition = _this2._types[object.type];
@@ -13407,7 +13405,13 @@ var Store = (function () {
               id: object.id,
               resource: resource
             });
+
+            return {
+              v: object
+            };
           })();
+
+          if (typeof _ret === "object") return _ret.v;
         } else {
           throw new TypeError("The data must have a type and id");
         }
@@ -13799,14 +13803,14 @@ var Store = (function () {
       var _this8 = this;
 
       if (root.data.constructor === Array) {
-        root.data.forEach(function (x) {
-          return _this8.add(x);
+        return root.data.map(function (x) {
+          return results.push(_this8.add(x));
         });
       } else {
-        this.add(root.data);
+        return this.add(root.data);
       }
       if (root.included) {
-        root.included.forEach(function (x) {
+        return root.included.map(function (x) {
           return _this8.add(x);
         });
       }
