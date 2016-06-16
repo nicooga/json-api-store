@@ -526,12 +526,12 @@ export default class Store {
    */
   push(root) {
     if (root.data.constructor === Array) {
-      return root.data.map(x => results.push(this.add(x)));
+      var memo = [];
+      root.data.forEach(x => memo.push(this.add(x)));
+      if (root.included) { root.included.map(x => memo.push(this.add(x))); }
+      return memo;
     } else {
       return this.add(root.data);
-    }
-    if (root.included) {
-      return root.included.map(x => this.add(x));
     }
   }
 

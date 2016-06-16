@@ -620,16 +620,18 @@ var Store = (function () {
       var _this8 = this;
 
       if (root.data.constructor === Array) {
-        return root.data.map(function (x) {
-          return results.push(_this8.add(x));
+        var memo = [];
+        root.data.forEach(function (x) {
+          return memo.push(_this8.add(x));
         });
+        if (root.included) {
+          root.included.map(function (x) {
+            return memo.push(_this8.add(x));
+          });
+        }
+        return memo;
       } else {
         return this.add(root.data);
-      }
-      if (root.included) {
-        return root.included.map(function (x) {
-          return _this8.add(x);
-        });
       }
     }
 
