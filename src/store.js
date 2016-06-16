@@ -189,6 +189,8 @@ export default class Store {
           id: object.id,
           resource: resource
         });
+
+        return object;
       } else {
         throw new TypeError(`The data must have a type and id`);
       }
@@ -524,12 +526,12 @@ export default class Store {
    */
   push(root) {
     if (root.data.constructor === Array) {
-      root.data.forEach(x => this.add(x));
+      return root.data.map(x => results.push(this.add(x)));
     } else {
-      this.add(root.data);
+      return this.add(root.data);
     }
     if (root.included) {
-      root.included.forEach(x => this.add(x));
+      return root.included.map(x => this.add(x));
     }
   }
 
